@@ -1,16 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { HomeHero } from '../features/home/HomeHero'
+import { HowItWorks } from '../features/home/HowItWorks'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
 function HomePage() {
+  // No deals API yet: render honest empty states (DESIGN.md §1.2, §7 "no fake data").
+  // Replace with TanStack Query data once /api/deals exists.
   return (
-    <section className="space-y-2">
-      <h1 className="text-2xl font-bold">EVE Online subscription specials</h1>
-      <p className="text-slate-600 dark:text-slate-400">
-        Track Omega, PLEX and skillpoint deals, and plan when to buy.
-      </p>
-    </section>
+    <>
+      <HomeHero bestDeal={null} summary={null} />
+      <HowItWorks />
+    </>
   )
 }
