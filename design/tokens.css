@@ -1,0 +1,94 @@
+/* OmegaWatch design tokens. See DESIGN.md for usage rules. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+:root {
+  /* Color */
+  --ow-bg: #0A0E13;
+  --ow-surface: #11171F;
+  --ow-surface-raised: #161E28;
+  --ow-surface-highlight: #1A1710;
+  --ow-border: #222D3A;
+  --ow-border-strong: #3A4757;
+  --ow-text: #E6EBF1;
+  --ow-text-muted: #93A1B2;
+  --ow-text-on-accent: #0A0E13;
+  --ow-accent: #F2A93B;
+  --ow-accent-hover: #FFC566;
+  --ow-plex: #6CC6F0;
+  --ow-plex-border: #2B5A70;
+  --ow-danger: #F0857A;
+
+  /* Fonts */
+  --ow-font-heading: "Space Grotesk", system-ui, sans-serif;
+  --ow-font-body: "Inter", system-ui, sans-serif;
+  --ow-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Type scale: size / line-height */
+  --ow-text-display: 56px;  --ow-lh-display: 1.05;
+  --ow-text-h1: 44px;       --ow-lh-h1: 1.1;
+  --ow-text-h2: 28px;       --ow-lh-h2: 1.2;
+  --ow-text-h3: 20px;       --ow-lh-h3: 1.3;
+  --ow-text-h4: 18px;       --ow-lh-h4: 1.3;
+  --ow-text-body-lg: 17px;
+  --ow-text-body: 15px;     --ow-lh-body: 1.5;
+  --ow-text-body-sm: 14px;
+  --ow-text-caption: 13px;
+  --ow-text-eyebrow: 12px;
+  --ow-text-num-xl: 52px;
+  --ow-text-num-lg: 22px;
+  --ow-tracking-tight: -0.02em;
+  --ow-tracking-eyebrow: 0.08em;
+
+  /* Spacing */
+  --ow-space-1: 4px;
+  --ow-space-2: 8px;
+  --ow-space-3: 12px;
+  --ow-space-4: 16px;
+  --ow-space-5: 20px;
+  --ow-space-6: 24px;
+  --ow-space-7: 28px;
+  --ow-space-8: 32px;
+  --ow-space-10: 40px;
+  --ow-space-12: 48px;
+  --ow-space-14: 56px;
+  --ow-space-20: 80px;
+
+  /* Radius */
+  --ow-radius-tag: 4px;
+  --ow-radius-control: 8px;
+  --ow-radius-panel: 10px;
+
+  /* Sizing */
+  --ow-content-max: 1200px;
+  --ow-control-h: 44px;
+  --ow-cta-h: 48px;
+
+  /* Motion */
+  --ow-transition: 120ms ease-out;
+}
+
+/* Base */
+html { background: var(--ow-bg); color-scheme: dark; }
+body {
+  margin: 0;
+  background: var(--ow-bg);
+  color: var(--ow-text);
+  font-family: var(--ow-font-body);
+  font-size: var(--ow-text-body);
+  line-height: var(--ow-lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--ow-font-heading); margin: 0; }
+a { color: var(--ow-accent); }
+a:hover { color: var(--ow-accent-hover); }
+:focus-visible { outline: 2px solid var(--ow-accent); outline-offset: 2px; }
+.ow-num { font-family: var(--ow-font-mono); font-variant-numeric: tabular-nums; }
+.ow-eyebrow {
+  font-family: var(--ow-font-mono);
+  font-size: var(--ow-text-eyebrow);
+  letter-spacing: var(--ow-tracking-eyebrow);
+  text-transform: uppercase;
+}
+.ow-container { max-width: var(--ow-content-max); margin: 0 auto; padding-inline: var(--ow-space-6); }
+@media (max-width: 480px) { .ow-container { padding-inline: var(--ow-space-4); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

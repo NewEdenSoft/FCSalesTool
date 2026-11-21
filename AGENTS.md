@@ -56,3 +56,10 @@ pnpm -C web build
 - Global client state, if needed, uses **Zustand**. Browser-persisted settings use a Zustand store with the `persist` middleware (unique `name`, `version` + `migrate`, `partialize`).
 - Tests: Vitest + React Testing Library (`*.test.tsx`).
 - Lint: oxlint (`.oxlintrc.json`).
+
+## Design
+All UI follows `design/DESIGN.md`. Read it before building or changing any screen.
+- Use tokens from `design/tokens.css` (or the Tailwind preset). Never hard-code colors, fonts or sizes.
+- Build new screens from the page templates in DESIGN.md §4 and the components in §3.
+- `design/components.html` is the visual reference for component markup.
+- If a feature needs a component that isn't in the spec, design it from the existing tokens and add it to DESIGN.md in the same change.
