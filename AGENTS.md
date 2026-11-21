@@ -89,7 +89,9 @@ pnpm -C web build
 ## Backend conventions
 
 - .NET 10, nullable enabled. SDK pinned in `global.json`; tests use Microsoft.Testing.Platform (`dotnet test` works directly).
-- Aspire 17 packages; keep all `Aspire.*` packages on the same version. Add integrations with `aspire add <name>`.
+- **Central package management:** every NuGet version lives in `Directory.Packages.props`; `PackageReference`s in `.csproj` files have no `Version`. To add a package, add a `PackageVersion` there and a version-less `PackageReference` in the project.
+- **Shared build props:** `Directory.Build.props` sets `TargetFramework`, `Nullable` and `ImplicitUsings` for every project; `tests/Directory.Build.props` adds the test setup (`OutputType=Exe`, `xunit.v3.mtp-v2`, global `using Xunit`, `xunit.runner.json`). Project files only hold what is specific to them.
+- Aspire 17 packages; keep all `Aspire.*` packages on the same version. Add integrations with `aspire add <name>` (check that it leaves the version in `Directory.Packages.props`).
 - The AppHost uses `AddDotnetProject(name, path)` (experimental, `ASPIREDOTNETPROJECT001`), not the obsolete `AddProject<T>`.
 - API endpoints live under `MapGroup("/api")`, use `TypedResults`, and return DTOs (never EF entities). Errors use `ProblemDetails`.
 - Use `TimeProvider` for "now" — no `DateTime.UtcNow` in Domain/Application.
