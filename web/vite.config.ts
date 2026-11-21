@@ -12,7 +12,9 @@ const apiTarget =
   process.env.services__api__http__0 ??
   'http://localhost:5000'
 
-const backendProxy = { target: apiTarget, changeOrigin: true, secure: false }
+// xfwd: send X-Forwarded-Host/Proto so the API builds email links and the EVE SSO
+// redirect URI for the browser's origin (localhost:5173), not its own.
+const backendProxy = { target: apiTarget, changeOrigin: true, secure: false, xfwd: true }
 
 // https://vite.dev/config/
 export default defineConfig({

@@ -29,7 +29,7 @@ Status: planning · Last updated: 2026-11-21
 | Relationship to other projects | Standalone (no shared code with `NewEdenSoft.Hunters`) |
 | Data entry | **Admin only**, via a protected admin area |
 | Audience | **Public, multi-user** site |
-| Authentication | **EVE SSO** (OAuth2); `Admin` role for data entry |
+| Authentication | **Local accounts** (ASP.NET Core Identity): sign in with **EVE SSO** and/or a **confirmed email + password**; `Admin` role for data entry (see 7.1) |
 | Frontend | **React 19 + TypeScript** SPA (Vite), **Tailwind CSS v4**, **TanStack Router**, **TanStack Query** (see 2.1) |
 | Backend | **.NET 10**, ASP.NET Core **Web API** (minimal APIs, OpenAPI) |
 | Persistence | EF Core; **PostgreSQL** (SQLite for local dev) |
@@ -73,7 +73,8 @@ CCP currently charges the same amount regardless of currency (e.g. 14.95 USD = 1
 | **NesItem** | An item on the New Eden Store priced in PLEX | `Id`, `Name`, `Kind` (OmegaViaPlex, SkillInjector, Mct, …), `ContentType`, `Quantity` |
 | **NesPrice** | PLEX price of a NES item over time (incl. NES sales) | `NesItemId`, `PlexCost`, `ValidFrom`, `ValidTo?`, `IsSale` |
 | **MarketPrice** | ISK price snapshot from ESI (PLEX, injectors) | `TypeId`, `Date`, `BuyPrice`, `SellPrice`, `Volume` |
-| **User** | EVE SSO identity | `Id`, `CharacterId`, `CharacterName`, `Roles` |
+| **User** (`AppUser`) | Local account (Identity) | `Id`, `DisplayName`, `Email?`, `EmailConfirmed`, `PasswordHash?`, `AvatarCharacterId?`, `CreatedAt` |
+| **LinkedCharacter** | EVE character that signs in to an account | `CharacterId` (PK), `UserId`, `Name`, `OwnerHash?`, `LinkedAt`, `LastSignInAt?` |
 | **UserSettings** | Per-user planner inputs | `Currency`, `AccountCount`, `PlanHorizonMonths`, `MaxOneTimeSpend?`, `PlexOnHand`, alert preferences |
 | **UserAccount** *(optional)* | Each of the user's EVE accounts | `Label`, `OmegaExpiresAt?`, `CharacterSp?` (for injector tiers) |
 | **PriceAlert** | "Notify me when X drops below Y" | `UserId`, `Metric`, `Threshold`, `Currency` |
@@ -88,6 +89,7 @@ erDiagram
     Sale ||--o{ SaleOffer : includes
     EventTag ||--o{ Sale : categorises
     NesItem ||--o{ NesPrice : "priced at"
+    User ||--o{ LinkedCharacter : "signs in with"
     User ||--|| UserSettings : has
     User ||--o{ UserAccount : owns
     User ||--o{ PriceAlert : sets
@@ -212,18 +214,24 @@ Large skill injectors yield fewer SP the more SP the character has (diminishing-
 
 ## 7. Users, settings, and alerts
 
-- **Login:** EVE SSO (no passwords stored). No ESI scopes needed for v1 beyond identity.
+- **Login:** EVE SSO or email + password. Accounts are local; EVE SSO only proves which character you are. No ESI scopes, and **no EVE tokens are stored**.
 - **Roles:** `User` (default), `Admin` (data entry). The first admin is seeded from config by character ID.
 
 ### 7.1 Auth implementation
 
-- **No ASP.NET Core Identity** (`-au Individual` is for local accounts). Use **cookie authentication + the OAuth/OIDC handler** pointed at EVE SSO; on first login, create our own `User` row keyed by `CharacterId`.
-- **Roles from the database:** an `IClaimsTransformation` (or claims added at sign-in) adds `Role=Admin` for admin characters.
-- **Backend-for-frontend (BFF) pattern:** the server does the whole OAuth flow and issues an **HttpOnly, Secure, SameSite=Lax cookie**. No tokens are stored in the browser.
-- Endpoints: `GET /auth/login` (redirects to EVE SSO), the SSO callback, `POST /auth/logout`, and `GET /api/me` (current user + roles, or 401).
-- **API authorization:** `RequireAuthorization()` on user endpoints, an `Admin` policy on admin endpoints. Unauthenticated API calls return **401, not a redirect** (override the cookie handler's redirect for `/api`).
-- **CSRF:** require a custom header (e.g. `X-Requested-With`) on state-changing `/api` requests, or use ASP.NET Core antiforgery tokens.
-- **Frontend:** `/api/me` is a TanStack Query query; protected routes check it in TanStack Router `beforeLoad` and redirect to `/auth/login`. Hiding admin UI is only for convenience — the API enforces access.
+*Decided 2026-11-21: local email/password accounts are required, so we use ASP.NET Core Identity (password hashing, email tokens, lockout) instead of cookie + OAuth only.*
+
+- **Identity** (`AddIdentityCore<AppUser>` + EF stores + `SignInManager`), cookie auth (`ow.auth`, HttpOnly, SameSite=Lax, Secure outside dev, 14-day sliding). Data-protection keys are stored in the database.
+- **Accounts:** an account has an optional email + password and any number of **linked EVE characters**. Display name defaults to the character name (EVE sign-up) or the email address, and can be changed. The avatar is the portrait of a chosen linked character, else initials.
+- **Email + password:** register → confirmation email → sign in (`RequireConfirmedEmail`). Passwords: min 10 characters, no composition rules; lockout after 5 failures for 15 min. Forgot/reset password by email (a reset also confirms the address). Register / forgot / resend never reveal whether an email has an account; registering an existing address emails its owner instead.
+- **EVE SSO:** OAuth handler (`/auth/eve/login`, callback `/auth/eve/callback`). The access token (JWT) is validated against the SSO's JWKS (issuer, both audiences, lifetime) and then discarded. The first sign-in with an unknown character creates an account; later sign-ins find it via `LinkedCharacter`. A signed-in user links more characters with `/auth/eve/link`. A character belongs to one account; if its `owner` hash changes (character transferred), it is detached from the old account.
+- **Account safety:** a character can't be unlinked if it is the account's only way to sign in (no password + confirmed email). Email changes take effect only after the new address is confirmed.
+- **Endpoints:** `/api/auth/{register,login,logout,confirm-email,confirm-email-change,resend-confirmation,forgot-password,reset-password,providers}`; `/api/me` (GET, PATCH display name), `/api/me/avatar`, `/api/me/characters/{id}` (DELETE), `/api/me/password`, `/api/me/email`. Anonymous auth endpoints are rate-limited per IP.
+- **BFF pattern:** the server does the whole OAuth flow; no tokens in the browser. Unauthenticated API calls return **401, not a redirect**.
+- **CSRF:** SameSite=Lax cookies + a required `X-Requested-With` header on state-changing `/api` and `/auth` requests.
+- **Email links** use `App:PublicBaseUrl` (required outside Development, so a forged `Host` header can't redirect reset links). Dev mail goes to a Mailpit container.
+- **Roles from the database:** `Admin` (not built yet) — an `IClaimsTransformation` or claims at sign-in, first admin seeded from config.
+- **Frontend:** `/api/me` is a TanStack Query query (`null` when signed out); protected routes check it in `beforeLoad` and redirect to `/login?redirect=…`. Hiding admin UI is only for convenience — the API enforces access.
 - **Settings** drive both dashboards; anonymous visitors see the dashboards with default settings.
 - **Alerts** (phase 5): email or Discord webhook when a sale starts or a unit cost drops below a threshold.
 

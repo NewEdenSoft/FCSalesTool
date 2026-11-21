@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FCSalesTool.Api.Tests/FCSalesTool.Api.Tests.csproj" />
+    <Project Path="tests/FCSalesTool.AppHost.Tests/FCSalesTool.AppHost.Tests.csproj" />
     <Project Path="tests/FCSalesTool.Application.Tests/FCSalesTool.Application.Tests.csproj" />
     <Project Path="tests/FCSalesTool.Domain.Tests/FCSalesTool.Domain.Tests.csproj" />
   </Folder>

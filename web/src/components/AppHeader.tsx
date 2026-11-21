@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { SITE_NAME } from '../config/site'
+import { AccountNav } from './AccountNav'
 import { CurrencySelect } from './CurrencySelect'
 import { LogoMark } from './Logo'
 import { container } from './ui'
@@ -37,7 +38,10 @@ export function AppHeader() {
           </Link>
         </nav>
 
-        <CurrencySelect />
+        <div className="flex flex-wrap items-center gap-4">
+          <CurrencySelect />
+          <AccountNav />
+        </div>
       </div>
     </header>
   )

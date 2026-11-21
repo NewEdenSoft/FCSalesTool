@@ -98,7 +98,7 @@ Class names below are suggestions (BEM-ish, `ow-` prefix). Match the structure a
 - Full-width, bottom border `--ow-border`. Inner row max 1200 px, padding 16/24, `flex-wrap`, space-between.
 - Left: logo (hexagon outline + circle, 28 px, amber stroke 2 px) + wordmark "OmegaWatch" Space Grotesk 700 20 px.
 - Center: nav links, 10/14 padding, radius 8, Inter 500. Inactive `--ow-text-muted`; active has `--ow-surface-raised` background, `--ow-text`, and `aria-current="page"`.
-- Right: currency `<select>` (44 px tall, labelled) + primary button "Get deal alerts".
+- Right: currency `<select>` (44 px tall, labelled) + primary button "Get deal alerts" + **account chip** (see below).
 - Under 768 px: nav wraps under the logo row; no hamburger needed until there are more than 5 links.
 
 ### Buttons
@@ -150,6 +150,25 @@ Mono `num-lg` value above a 13 px muted label. Used in a wrapping row with gap 2
 ### Status / confirmation
 Panel with 1 px `--ow-plex` border, `role="status"`, h3 + muted body + secondary button.
 
+### Avatar
+- Round (50%), 32 px in lists and the header, 64 px on the account page. 1 px `--ow-border`, `--ow-surface-raised` behind.
+- Shows the portrait of the account's chosen EVE character (`images.evetech.net`). With no character, or if the image fails, show 1–2 initials in Space Grotesk 600 on `--ow-surface-raised`.
+- Always decorative (`alt=""`): the name is shown next to it.
+
+### Account chip (header)
+- Signed out: secondary button "Sign in" (amber is kept for the page's primary CTA).
+- Signed in: a link to `/account`, 44 px tall, radius 8, padding 0 8: 32 px avatar + display name (Inter 500, truncated at ~220 px). Hover/active: `--ow-surface-raised` background.
+- While the session is loading, reserve the space (no layout jump, no flash of "Sign in").
+
+### Sign-in options
+- "Sign in with EVE Online" is a full-width **secondary** button (text only — no EVE logo, see §7), with a caption saying what we learn from EVE. The email form's submit is the one primary button.
+- Between the two options: a divider row — 1 px `--ow-border` lines either side of a muted caption "or" (`role="separator"`).
+- Form-level errors (wrong password, SSO failed) are a `role="alert"` line in `--ow-danger` 14 px above the form actions; field errors follow Form fields.
+- "Check your inbox" and similar results use the Status / confirmation panel.
+
+### Linked character row
+Rows separated by top borders, 12 px padding: 32 px avatar + name (500, truncated) + actions on the right — "Avatar" tag (cyan outline, like Limited time) on the current avatar, otherwise a ghost "Use as avatar" button; ghost "Unlink". Action buttons carry the character name in visually hidden text.
+
 ### Bar chart (cost per month)
 - Rows: 64 px mono label column + bars. Each bar 14 px tall, radius 3, width proportional to the max (the 1-month price). Value label right of the bar in mono 13 px.
 - Two series max: list price (`--ow-border-strong`) and with bundle (`--ow-accent`). Legend with 12 px swatches, top right.
@@ -169,8 +188,8 @@ Every page = App header → `<main>` (max 1200, padding 48–56 / 24 / 80, flex 
 
 1. **Hero + highlight** (home): row with `flex-wrap`; text column `flex: 999 1 520px` (eyebrow in cyan, display headline, body-lg intro, stats row) and highlight card `flex: 1 1 380px`.
 2. **Filter + table** (any list of offers): section header row (h2 left, segmented controls right, wraps) → table panel → footnote.
-3. **Sidebar form + results** (calculator, settings): inputs panel `flex: 1 1 360px`, results column `flex: 999 1 560px` with highlight card first, then supporting panels. Stacks on phones with inputs first.
-4. **Form + aside** (alerts, sign-up): form column `flex: 999 1 560px`, aside panel `flex: 1 1 340px`.
+3. **Sidebar form + results** (calculator, settings, account): inputs panel `flex: 1 1 360px`, results column `flex: 999 1 560px` with highlight card first, then supporting panels. Stacks on phones with inputs first.
+4. **Form + aside** (alerts, sign-in, sign-up, password reset): page header (eyebrow + h1 + optional intro), then form panel `flex: 999 1 560px`, aside panel `flex: 1 1 340px`.
 5. **Explainer grid**: h2 spanning all columns, then `grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))` of step cards.
 
 New pages should be composed from these templates before inventing new layouts.
