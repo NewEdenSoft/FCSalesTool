@@ -35,7 +35,7 @@ pnpm-debug.log*
 yarn-error.log*
 
 # SPA build copied into the API at publish time
-src/SubscriptionDeal.Api/wwwroot/
+src/FCSalesTool.Api/wwwroot/
 
 # ---- Claude Code (personal settings only; shared settings.json and skills are committed) ----
 .claude/settings.local.json

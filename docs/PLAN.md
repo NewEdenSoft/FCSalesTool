@@ -1,4 +1,4 @@
-# SubscriptionDeal — Project Plan
+# FCSalesTool — Project Plan
 
 An EVE Online **subscription specials tracker**: record every special CCP runs (what, how much, when it starts and ends), predict when the next one will be, and give each user dashboards that tell them **what to buy and when**.
 
@@ -232,12 +232,12 @@ Large skill injectors yield fewer SP the more SP the character has (diminishing-
 ## 8. Architecture
 
 ```
-SubscriptionDeal.sln
+FCSalesTool.sln
 ├─ src/
-│  ├─ SubscriptionDeal.Domain          # entities, value objects (Money, Currency), enums
-│  ├─ SubscriptionDeal.Application     # pricing/unit-cost, planners, prediction, use cases
-│  ├─ SubscriptionDeal.Infrastructure  # EF Core DbContext, migrations, ESI client, jobs
-│  └─ SubscriptionDeal.Api             # minimal API endpoints, EVE SSO (BFF), serves SPA
+│  ├─ FCSalesTool.Domain          # entities, value objects (Money, Currency), enums
+│  ├─ FCSalesTool.Application     # pricing/unit-cost, planners, prediction, use cases
+│  ├─ FCSalesTool.Infrastructure  # EF Core DbContext, migrations, ESI client, jobs
+│  └─ FCSalesTool.Api             # minimal API endpoints, EVE SSO (BFF), serves SPA
 ├─ web/                                # React 19 + TS SPA (Vite, pnpm)
 │  ├─ src/routes/                      # TanStack Router file-based routes
 │  ├─ src/features/                    # planner/, skillpoints/, sales/, admin/, settings/
@@ -245,9 +245,9 @@ SubscriptionDeal.sln
 │  ├─ src/api/                         # generated OpenAPI client + query option factories
 │  └─ src/styles/app.css               # Tailwind v4 entry + @theme tokens
 └─ tests/
-   ├─ SubscriptionDeal.Domain.Tests
-   ├─ SubscriptionDeal.Application.Tests   # planner + prediction tests (most value here)
-   └─ SubscriptionDeal.Api.Tests           # endpoint tests via WebApplicationFactory
+   ├─ FCSalesTool.Domain.Tests
+   ├─ FCSalesTool.Application.Tests   # planner + prediction tests (most value here)
+   └─ FCSalesTool.Api.Tests           # endpoint tests via WebApplicationFactory
 ```
 
 Frontend tests: **Vitest + React Testing Library** for components, **MSW** to mock the API; optionally **Playwright** for a few end-to-end flows (login stubbed).
