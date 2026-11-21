@@ -86,6 +86,8 @@ pnpm -C web test
 pnpm -C web build
 ```
 
+CI (`.github/workflows/ci.yml`) runs the same checks on every PR and on `main` (backend in Release), and both jobs are required to merge. Tool versions come from `global.json` (SDK), `packageManager` in `web/package.json` (pnpm) and `web/.node-version` (Node); bump them there, not in the workflow. The AppHost tests only build the Aspire model, so CI needs no Docker.
+
 ## Backend conventions
 
 - .NET 10, nullable enabled. SDK pinned in `global.json`; tests use Microsoft.Testing.Platform (`dotnet test` works directly).
