@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmegaWatch — component reference</title>
+<link rel="stylesheet" href="./tokens.css">
+<style>
+/* ---- Component styles (reference implementation) ---- */
+.ow-header { border-bottom: 1px solid var(--ow-border); }
+.ow-header__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ow-space-4); padding-block: var(--ow-space-4); }
+.ow-logo { display: flex; align-items: center; gap: 10px; color: var(--ow-text); text-decoration: none; font-family: var(--ow-font-heading); font-weight: 700; font-size: 20px; }
+.ow-logo:hover { color: var(--ow-text); }
+.ow-nav { display: flex; flex-wrap: wrap; gap: var(--ow-space-1); }
+.ow-nav a { padding: 10px 14px; border-radius: var(--ow-radius-control); color: var(--ow-text-muted); text-decoration: none; font-weight: 500; transition: background var(--ow-transition), color var(--ow-transition); }
+.ow-nav a:hover { color: var(--ow-text); }
+.ow-nav a[aria-current="page"] { background: var(--ow-surface-raised); color: var(--ow-text); }
+.ow-header__actions { display: flex; align-items: center; gap: var(--ow-space-3); }
+
+.ow-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--ow-control-h); padding: 0 18px; border-radius: var(--ow-radius-control); border: 1px solid transparent; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; transition: background var(--ow-transition), border-color var(--ow-transition); }
+.ow-btn--primary { background: var(--ow-accent); color: var(--ow-text-on-accent); }
+.ow-btn--primary:hover { background: var(--ow-accent-hover); color: var(--ow-text-on-accent); }
+.ow-btn--secondary { background: var(--ow-surface-raised); border-color: var(--ow-border); color: var(--ow-text); font-weight: 500; }
+.ow-btn--secondary:hover { border-color: var(--ow-border-strong); color: var(--ow-text); }
+.ow-btn--ghost { background: transparent; border-color: var(--ow-border); color: var(--ow-text); height: 40px; font-size: var(--ow-text-body-sm); font-weight: 500; }
+.ow-btn--ghost:hover { background: var(--ow-surface-raised); color: var(--ow-text); }
+.ow-btn--cta { height: var(--ow-cta-h); }
+.ow-btn--block { display: flex; width: 100%; }
+.ow-btn--icon { width: var(--ow-control-h); padding: 0; font-size: 20px; }
+
+.ow-segmented { display: inline-flex; flex-wrap: wrap; gap: var(--ow-space-1); padding: var(--ow-space-1); background: var(--ow-surface); border: 1px solid var(--ow-border); border-radius: var(--ow-radius-panel); }
+.ow-segmented button { min-height: 40px; padding: 0 14px; border: 0; border-radius: 7px; background: transparent; color: var(--ow-text-muted); font: inherit; font-size: var(--ow-text-body-sm); font-weight: 500; cursor: pointer; transition: background var(--ow-transition), color var(--ow-transition); }
+.ow-segmented button:hover { color: var(--ow-text); }
+.ow-segmented button[aria-pressed="true"] { background: var(--ow-accent); color: var(--ow-text-on-accent); }
+
+.ow-panel { background: var(--ow-surface); border: 1px solid var(--ow-border); border-radius: var(--ow-radius-panel); padding: var(--ow-space-6); display: flex; flex-direction: column; gap: var(--ow-space-4); }
+.ow-panel--highlight { border-color: var(--ow-accent); padding: var(--ow-space-7); }
+.ow-panel--status { border-color: var(--ow-plex); }
+
+.ow-tag { align-self: flex-start; display: inline-block; font-family: var(--ow-font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: var(--ow-radius-tag); padding: 1px 6px; }
+.ow-tag--best { background: var(--ow-accent); color: var(--ow-text-on-accent); }
+.ow-tag--limited { color: var(--ow-plex); border: 1px solid var(--ow-plex-border); padding: 0 6px; }
+
+.ow-stat { display: flex; flex-direction: column; }
+.ow-stat__value { font-family: var(--ow-font-mono); font-size: var(--ow-text-num-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ow-stat__label { color: var(--ow-text-muted); font-size: var(--ow-text-caption); }
+
+.ow-table-wrap { overflow-x: auto; background: var(--ow-surface); border: 1px solid var(--ow-border); border-radius: var(--ow-radius-panel); }
+.ow-table { width: 100%; min-width: 980px; border-collapse: collapse; font-size: var(--ow-text-body-sm); }
+.ow-table th { text-align: left; font-family: var(--ow-font-mono); font-size: var(--ow-text-eyebrow); font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ow-text-muted); padding: 12px 20px; border-bottom: 1px solid var(--ow-border); }
+.ow-table td { padding: 16px 20px; border-bottom: 1px solid var(--ow-border); vertical-align: middle; }
+.ow-table tbody tr:last-child td { border-bottom: 0; }
+.ow-table tbody tr:hover { background: var(--ow-surface-raised); }
+.ow-table tr.is-best { background: var(--ow-surface-highlight); box-shadow: inset 3px 0 0 var(--ow-accent); }
+.ow-table .ow-offer { display: flex; flex-direction: column; gap: 4px; }
+.ow-table .ow-offer__name { font-weight: 600; font-size: var(--ow-text-body); }
+.ow-table .is-plex { color: var(--ow-plex); }
+.ow-table .is-muted { color: var(--ow-text-muted); }
+.ow-table tr.is-best .ow-eff { color: var(--ow-accent); font-weight: 600; }
+
+.ow-field { display: flex; flex-direction: column; gap: 6px; }
+.ow-field label, .ow-label { font-weight: 600; }
+.ow-field .ow-optional { color: var(--ow-text-muted); font-weight: 400; }
+.ow-input, .ow-select { height: var(--ow-control-h); padding: 0 12px; background: var(--ow-bg); color: var(--ow-text); border: 1px solid var(--ow-border); border-radius: var(--ow-radius-control); font: inherit; }
+.ow-input::placeholder { color: var(--ow-text-muted); }
+.ow-input[aria-invalid="true"] { border-color: var(--ow-danger); }
+.ow-help { font-size: var(--ow-text-caption); color: var(--ow-text-muted); }
+.ow-error { font-size: var(--ow-text-caption); color: var(--ow-danger); }
+
+.ow-check { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--ow-bg); border: 1px solid var(--ow-border); border-radius: var(--ow-radius-control); cursor: pointer; }
+.ow-check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ow-accent); }
+.ow-check__title { display: block; font-weight: 500; }
+.ow-check__desc { display: block; color: var(--ow-text-muted); font-size: var(--ow-text-body-sm); }
+
+.ow-range input { width: 100%; height: var(--ow-control-h); accent-color: var(--ow-accent); }
+.ow-range__head { display: flex; justify-content: space-between; }
+.ow-range__value { font-family: var(--ow-font-mono); color: var(--ow-accent); font-weight: 600; }
+.ow-range__ticks { display: flex; justify-content: space-between; font-family: var(--ow-font-mono); font-size: 12px; color: var(--ow-text-muted); }
+
+.ow-stepper { display: flex; align-items: center; gap: 12px; }
+.ow-stepper__value { min-width: 32px; text-align: center; font-family: var(--ow-font-mono); font-size: 22px; font-weight: 600; }
+
+.ow-bars { display: flex; flex-direction: column; gap: 12px; }
+.ow-bars__row { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; }
+.ow-bars__label { font-family: var(--ow-font-mono); font-size: var(--ow-text-body-sm); color: var(--ow-text-muted); }
+.ow-bars__series { display: flex; flex-direction: column; gap: 4px; }
+.ow-bar { display: flex; align-items: center; gap: 8px; font-family: var(--ow-font-mono); font-size: 13px; }
+.ow-bar__fill { height: 14px; border-radius: 3px; width: calc((100% - 72px) * var(--v)); background: var(--ow-border-strong); }
+.ow-bar--accent .ow-bar__fill { background: var(--ow-accent); }
+.ow-bar--accent { color: var(--ow-accent); }
+.ow-legend { display: flex; gap: 16px; font-size: var(--ow-text-caption); color: var(--ow-text-muted); }
+.ow-legend span { display: flex; align-items: center; gap: 6px; }
+.ow-legend i { width: 12px; height: 12px; border-radius: 3px; background: var(--ow-border-strong); }
+.ow-legend i.is-accent { background: var(--ow-accent); }
+
+.ow-timeline__item { display: flex; gap: 14px; padding: 12px 0; border-top: 1px solid var(--ow-border); }
+.ow-timeline__dot { flex: none; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%; background: var(--ow-border-strong); }
+.ow-timeline__dot.is-live { background: var(--ow-accent); }
+.ow-timeline__title { display: block; font-weight: 500; }
+.ow-timeline__meta { display: block; color: var(--ow-text-muted); font-size: var(--ow-text-body-sm); }
+
+.ow-footer { border-top: 1px solid var(--ow-border); }
+.ow-footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: var(--ow-space-6); font-size: var(--ow-text-caption); color: var(--ow-text-muted); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---- Reference page chrome only ---- */
+.ref-main { display: flex; flex-direction: column; gap: 56px; padding-block: 48px 80px; }
+.ref-section { display: flex; flex-direction: column; gap: 16px; }
+.ref-section > h2 { font-size: var(--ow-text-h2); }
+.ref-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.ref-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.ref-swatch { border: 1px solid var(--ow-border); border-radius: var(--ow-radius-panel); overflow: hidden; background: var(--ow-surface); }
+.ref-swatch div { height: 56px; }
+.ref-swatch p { margin: 0; padding: 8px 12px; font-size: 13px; }
+.ref-swatch code { color: var(--ow-text-muted); font-family: var(--ow-font-mono); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header class="ow-header">
+<div class="ow-container ow-header__inner">
+<a class="ow-logo" href="#">
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M14 2 25 8.5v11L14 26 3 19.5v-11Z" stroke="#F2A93B" stroke-width="2"/><circle cx="14" cy="14" r="4" stroke="#F2A93B" stroke-width="2"/></svg>
+OmegaWatch
+</a>
+<nav class="ow-nav" aria-label="Main">
+<a href="#" aria-current="page">Deals</a>
+<a href="#">Calculator</a>
+<a href="#">Alerts</a>
+<a href="#">How it works</a>
+</nav>
+<div class="ow-header__actions">
+<label for="cur" class="ow-help">Currency</label>
+<select id="cur" class="ow-select"><option>USD $</option><option>EUR €</option><option>GBP £</option></select>
+<a class="ow-btn ow-btn--primary" href="#">Get deal alerts</a>
+</div>
+</div>
+</header>
+
+<main class="ow-container ref-main">
+<div>
+<p class="ow-eyebrow" style="color: var(--ow-plex); margin: 0 0 12px">Component reference</p>
+<h1 style="font-size: var(--ow-text-h1); line-height: var(--ow-lh-h1); letter-spacing: var(--ow-tracking-tight)">OmegaWatch UI kit</h1>
+<p style="color: var(--ow-text-muted); font-size: var(--ow-text-body-lg); max-width: 640px">Every component in DESIGN.md, rendered with tokens.css. Copy the markup and class structure; adapt to your framework.</p>
+</div>
+
+<section class="ref-section" aria-labelledby="s-color">
+<h2 id="s-color">Color</h2>
+<div class="ref-swatches">
+<div class="ref-swatch"><div style="background:#0A0E13"></div><p>bg<br><code>#0A0E13</code></p></div>
+<div class="ref-swatch"><div style="background:#11171F"></div><p>surface<br><code>#11171F</code></p></div>
+<div class="ref-swatch"><div style="background:#161E28"></div><p>surface-raised<br><code>#161E28</code></p></div>
+<div class="ref-swatch"><div style="background:#1A1710"></div><p>surface-highlight<br><code>#1A1710</code></p></div>
+<div class="ref-swatch"><div style="background:#222D3A"></div><p>border<br><code>#222D3A</code></p></div>
+<div class="ref-swatch"><div style="background:#3A4757"></div><p>border-strong<br><code>#3A4757</code></p></div>
+<div class="ref-swatch"><div style="background:#E6EBF1"></div><p>text<br><code>#E6EBF1</code></p></div>
+<div class="ref-swatch"><div style="background:#93A1B2"></div><p>text-muted<br><code>#93A1B2</code></p></div>
+<div class="ref-swatch"><div style="background:#F2A93B"></div><p>accent<br><code>#F2A93B</code></p></div>
+<div class="ref-swatch"><div style="background:#6CC6F0"></div><p>plex<br><code>#6CC6F0</code></p></div>
+<div class="ref-swatch"><div style="background:#F0857A"></div><p>danger<br><code>#F0857A</code></p></div>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-type">
+<h2 id="s-type">Typography</h2>
+<div class="ow-panel">
+<p class="ow-eyebrow" style="margin:0; color: var(--ow-plex)">Eyebrow · JetBrains Mono 12</p>
+<p style="margin:0; font-family: var(--ow-font-heading); font-weight:700; font-size: var(--ow-text-display); line-height: var(--ow-lh-display); letter-spacing: var(--ow-tracking-tight)">Display 56</p>
+<p style="margin:0; font-family: var(--ow-font-heading); font-weight:700; font-size: var(--ow-text-h1); letter-spacing: var(--ow-tracking-tight)">Heading 1 · 44</p>
+<p style="margin:0; font-family: var(--ow-font-heading); font-weight:600; font-size: var(--ow-text-h2)">Heading 2 · 28</p>
+<p style="margin:0; font-family: var(--ow-font-heading); font-weight:600; font-size: var(--ow-text-h3)">Heading 3 · 20</p>
+<p style="margin:0; font-size: var(--ow-text-body-lg); color: var(--ow-text-muted)">Body large 17 — page intros.</p>
+<p style="margin:0">Body 15 — the default for UI and paragraphs.</p>
+<p style="margin:0; font-size: var(--ow-text-caption); color: var(--ow-text-muted)">Caption 13 — footnotes and helper text.</p>
+<p class="ow-num" style="margin:0; font-size: var(--ow-text-num-xl); font-weight:600; line-height:1; color: var(--ow-accent)">$8.58</p>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-btn">
+<h2 id="s-btn">Buttons</h2>
+<div class="ref-row">
+<button type="button" class="ow-btn ow-btn--primary">Primary</button>
+<button type="button" class="ow-btn ow-btn--primary ow-btn--cta">Primary CTA 48</button>
+<button type="button" class="ow-btn ow-btn--secondary">Secondary</button>
+<a class="ow-btn ow-btn--ghost" href="#">View</a>
+<button type="button" class="ow-btn ow-btn--secondary ow-btn--icon" aria-label="Increase">+</button>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-seg">
+<h2 id="s-seg">Segmented control</h2>
+<div class="ref-row">
+<div class="ow-segmented" role="group" aria-label="Pay with">
+<button type="button" aria-pressed="true">Cash</button>
+<button type="button" aria-pressed="false">PLEX</button>
+<button type="button" aria-pressed="false">ISK</button>
+</div>
+<div class="ow-segmented" role="group" aria-label="Subscription length">
+<button type="button" aria-pressed="false">All</button>
+<button type="button" aria-pressed="false">1 mo</button>
+<button type="button" aria-pressed="false">3 mo</button>
+<button type="button" aria-pressed="false">6 mo</button>
+<button type="button" aria-pressed="true">12 mo</button>
+<button type="button" aria-pressed="false">24 mo</button>
+</div>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-cards">
+<h2 id="s-cards">Cards</h2>
+<div style="display:flex; flex-wrap:wrap; gap:16px; align-items:stretch">
+<aside class="ow-panel ow-panel--highlight" aria-label="Best deal right now" style="flex: 1 1 380px">
+<div style="display:flex; justify-content:space-between; gap:12px">
+<span class="ow-eyebrow" style="color: var(--ow-accent)">Best value now</span>
+<span class="ow-help">Ends 26 Nov, 23:59 UTC</span>
+</div>
+<h3 style="font-size: 26px">24 months + 1,500 PLEX</h3>
+<div style="display:flex; align-items:baseline; gap:10px">
+<span class="ow-num" style="font-size: var(--ow-text-num-xl); font-weight:600; line-height:1; color: var(--ow-accent)">$8.58</span>
+<span style="color: var(--ow-text-muted)">per month</span>
+</div>
+<p style="margin:0; color: var(--ow-text-muted)">vs $19.99 paying month by month</p>
+<hr style="border:0; border-top:1px solid var(--ow-border); margin:0; width:100%">
+<div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; font-size: 14px">
+<div><div style="color: var(--ow-text-muted)">You pay</div><div class="ow-num" style="font-weight:600">$270.99</div></div>
+<div><div style="color: var(--ow-text-muted)">Bonus</div><div class="ow-num" style="font-weight:600; color: var(--ow-plex)">1,500 PLEX</div></div>
+</div>
+<a class="ow-btn ow-btn--primary ow-btn--cta ow-btn--block" href="#" target="_blank" rel="noopener">Open in EVE Store<span class="sr-only"> (opens in new tab)</span></a>
+</aside>
+<div class="ow-panel" style="flex: 1 1 260px; gap: 8px">
+<span class="ow-num" style="color: var(--ow-accent)">01</span>
+<h4 style="font-size: var(--ow-text-h4)">Effective price per month</h4>
+<p style="margin:0; color: var(--ow-text-muted)">Price minus the value of any bonus PLEX, divided by the months you get.</p>
+</div>
+<div class="ow-panel ow-panel--status" role="status" style="flex: 1 1 260px; gap: 8px">
+<h3>Check your inbox</h3>
+<p style="margin:0; color: var(--ow-text-muted)">Confirm your email and alerts start straight away.</p>
+<button type="button" class="ow-btn ow-btn--secondary" style="align-self:flex-start">Edit alert settings</button>
+</div>
+</div>
+<div class="ref-row" style="gap: 24px">
+<div class="ow-stat"><span class="ow-stat__value">13</span><span class="ow-stat__label">offers tracked</span></div>
+<div class="ow-stat"><span class="ow-stat__value">4</span><span class="ow-stat__label">limited-time deals live</span></div>
+<span class="ow-tag ow-tag--best">Best value</span>
+<span class="ow-tag ow-tag--limited">Limited time</span>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-table">
+<h2 id="s-table">Deals table</h2>
+<div class="ow-table-wrap">
+<table class="ow-table">
+<caption class="sr-only">Omega offers sorted by real cost per month</caption>
+<thead><tr><th scope="col">Offer</th><th scope="col">Where</th><th scope="col">Length</th><th scope="col">Price</th><th scope="col">Bonus</th><th scope="col">Real $ / mo</th><th scope="col">Saving</th><th scope="col">Ends</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+<tbody>
+<tr class="is-best">
+<td><div class="ow-offer"><span class="ow-offer__name">24 months + 1,500 PLEX</span><span class="ow-tag ow-tag--best">Best value</span><span class="ow-tag ow-tag--limited">Limited time</span></div></td>
+<td class="is-muted">EVE Store · bundle</td><td class="ow-num">24 mo</td><td class="ow-num">$270.99</td><td class="ow-num is-plex">1,500 PLEX</td><td class="ow-num ow-eff">$8.58</td><td class="ow-num">57%</td><td class="is-muted">26 Nov, 23:59 UTC</td>
+<td><a class="ow-btn ow-btn--ghost" href="#">View<span class="sr-only">: 24 months + 1,500 PLEX</span></a></td>
+</tr>
+<tr>
+<td><div class="ow-offer"><span class="ow-offer__name">12 months + 1,000 PLEX</span><span class="ow-tag ow-tag--limited">Limited time</span></div></td>
+<td class="is-muted">EVE Store · bundle</td><td class="ow-num">12 mo</td><td class="ow-num">$149.90</td><td class="ow-num is-plex">1,000 PLEX</td><td class="ow-num ow-eff">$8.74</td><td class="ow-num">56%</td><td class="is-muted">26 Nov, 23:59 UTC</td>
+<td><a class="ow-btn ow-btn--ghost" href="#">View<span class="sr-only">: 12 months + 1,000 PLEX</span></a></td>
+</tr>
+<tr>
+<td><div class="ow-offer"><span class="ow-offer__name">1 month Omega</span></div></td>
+<td class="is-muted">EVE Store</td><td class="ow-num">1 mo</td><td class="ow-num">$19.99</td><td class="ow-num is-plex">—</td><td class="ow-num ow-eff">$19.99</td><td class="ow-num">—</td><td class="is-muted">Ongoing</td>
+<td><a class="ow-btn ow-btn--ghost" href="#">View<span class="sr-only">: 1 month Omega</span></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="ow-help" style="margin:0">Real $ / mo = (price − value of bonus PLEX as stated by CCP) ÷ months. Saving is against paying $19.99 every month.</p>
+</section>
+
+<section class="ref-section" aria-labelledby="s-form">
+<h2 id="s-form">Form fields</h2>
+<div class="ow-panel" style="max-width: 640px; gap: 24px">
+<div class="ow-field">
+<label for="email">Email</label>
+<input id="email" class="ow-input" type="email" placeholder="capsuleer@example.com">
+</div>
+<div class="ow-field">
+<label for="hook">Discord webhook <span class="ow-optional">(optional)</span></label>
+<input id="hook" class="ow-input" type="url" aria-invalid="true" aria-describedby="hook-err" value="not-a-url">
+<span id="hook-err" class="ow-error">Enter a full webhook URL starting with https://</span>
+</div>
+<label class="ow-check"><input type="checkbox" checked><span><span class="ow-check__title">PLEX sales</span><span class="ow-check__desc">Discounted PLEX packs, the cheap way to buy Omega in-game.</span></span></label>
+<div class="ow-range">
+<div class="ow-range__head"><label for="thr" class="ow-label">Only alert me below</label><span class="ow-range__value">$10.00 / mo</span></div>
+<input id="thr" type="range" min="6" max="20" step="0.5" value="10">
+<div class="ow-range__ticks"><span>$6</span><span>$13</span><span>$20</span></div>
+</div>
+<div class="ow-field">
+<span id="acc" class="ow-label">Accounts</span>
+<div class="ow-stepper" role="group" aria-labelledby="acc">
+<button type="button" class="ow-btn ow-btn--secondary ow-btn--icon" aria-label="Fewer accounts">−</button>
+<span class="ow-stepper__value" aria-live="polite">2</span>
+<button type="button" class="ow-btn ow-btn--secondary ow-btn--icon" aria-label="More accounts">+</button>
+</div>
+</div>
+<button type="submit" class="ow-btn ow-btn--primary ow-btn--cta">Start alerts</button>
+</div>
+</section>
+
+<section class="ref-section" aria-labelledby="s-chart">
+<h2 id="s-chart">Bar chart &amp; timeline</h2>
+<div style="display:flex; flex-wrap:wrap; gap:16px; align-items:start">
+<div class="ow-panel" style="flex: 999 1 520px">
+<div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px">
+<h3>Real cost per month, by pack</h3>
+<div class="ow-legend"><span><i></i>List price</span><span><i class="is-accent"></i>With bundle PLEX</span></div>
+</div>
+<div class="ow-bars">
+<div class="ow-bars__row"><span class="ow-bars__label">1 mo</span><div class="ow-bars__series"><div class="ow-bar"><div class="ow-bar__fill" style="--v:1"></div>$19.99</div></div></div>
+<div class="ow-bars__row"><span class="ow-bars__label">12 mo</span><div class="ow-bars__series"><div class="ow-bar"><div class="ow-bar__fill" style="--v:.6248"></div>$12.49</div><div class="ow-bar ow-bar--accent"><div class="ow-bar__fill" style="--v:.4373"></div>$8.74</div></div></div>
+<div class="ow-bars__row"><span class="ow-bars__label">24 mo</span><div class="ow-bars__series"><div class="ow-bar"><div class="ow-bar__fill" style="--v:.5648"></div>$11.29</div><div class="ow-bar ow-bar--accent"><div class="ow-bar__fill" style="--v:.4294"></div>$8.58</div></div></div>
+</div>
+</div>
+<div class="ow-panel" style="flex: 1 1 320px; gap: 4px">
+<h3 style="margin-bottom: 12px">Recent offers</h3>
+<div class="ow-timeline__item"><span class="ow-timeline__dot is-live"></span><span><span class="ow-timeline__title">Omega + free PLEX bundles</span><span class="ow-timeline__meta">6 – 26 Nov 2026 · live now</span></span></div>
+<div class="ow-timeline__item"><span class="ow-timeline__dot"></span><span><span class="ow-timeline__title">Past offer</span><span class="ow-timeline__meta">Dates · ended</span></span></div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="ow-footer">
+<div class="ow-container ow-footer__inner">
+<span>OmegaWatch is a fan site, not affiliated with CCP Games. EVE Online is a trademark of CCP hf.</span>
+<span>Prices in USD, before local tax.</span>
+</div>
+</footer>
+</body>
+</html>
