@@ -232,12 +232,15 @@ Large skill injectors yield fewer SP the more SP the character has (diminishing-
 ## 8. Architecture
 
 ```
-FCSalesTool.sln
+FCSalesTool.slnx
+aspire.config.json
 ├─ src/
 │  ├─ FCSalesTool.Domain          # entities, value objects (Money, Currency), enums
 │  ├─ FCSalesTool.Application     # pricing/unit-cost, planners, prediction, use cases
 │  ├─ FCSalesTool.Infrastructure  # EF Core DbContext, migrations, ESI client, jobs
-│  └─ FCSalesTool.Api             # minimal API endpoints, EVE SSO (BFF), serves SPA
+│  ├─ FCSalesTool.Api             # minimal API endpoints, EVE SSO (BFF), serves SPA
+│  ├─ FCSalesTool.AppHost         # Aspire AppHost: orchestrates postgres, api, web for local dev
+│  └─ FCSalesTool.ServiceDefaults # OpenTelemetry, health checks, service discovery
 ├─ web/                                # React 19 + TS SPA (Vite, pnpm)
 │  ├─ src/routes/                      # TanStack Router file-based routes
 │  ├─ src/features/                    # planner/, skillpoints/, sales/, admin/, settings/
@@ -261,7 +264,8 @@ Frontend tests: **Vitest + React Testing Library** for components, **MSW** to mo
 - **Project conventions:** an `AGENTS.md` at the repo root covering both halves (API conventions, frontend folder layout, how to regenerate the API client, how to run dev).
 - **Background jobs** (hosted services or Hangfire): ESI market price polling (daily), prediction recompute (nightly + on sale change), alert dispatch.
 - **ESI:** public market endpoints only; respect cache headers and the user agent rules.
-- **Hosting:** TBD (see open questions). Containerised (Dockerfile) so it stays portable.
+- **Local orchestration:** .NET Aspire (AppHost) runs Postgres (persistent container), the API, and the Vite dev server with service discovery and the Aspire dashboard for logs/traces.
+- **Hosting:** TBD (see open questions). Aspire can publish to Docker Compose, Azure Container Apps, or Kubernetes, which keeps the target open.
 
 ---
 

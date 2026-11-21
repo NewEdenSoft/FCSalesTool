@@ -1,0 +1,7 @@
+<Project>
+  <!-- Allow test projects with no tests yet (MTP exit code 8 = zero tests ran).
+       Remove once every test project contains tests. -->
+  <PropertyGroup>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+</Project>
