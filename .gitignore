@@ -1,0 +1,54 @@
+# ---- .NET ----
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+TestResults/
+*.trx
+coverage*/
+*.coverage
+*.coveragexml
+artifacts/
+publish/
+
+# ---- IDEs ----
+.vs/
+.idea/
+*.DotSettings.user
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# ---- Node / frontend ----
+node_modules/
+web/dist/
+web/.vite/
+web/coverage/
+web/playwright-report/
+web/test-results/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# SPA build copied into the API at publish time
+src/SubscriptionDeal.Api/wwwroot/
+
+# ---- Claude Code (personal settings only; shared settings.json and skills are committed) ----
+.claude/settings.local.json
+
+# ---- Secrets / local config ----
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+*.db
+*.db-shm
+*.db-wal
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
