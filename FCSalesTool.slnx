@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FCSalesTool.Api/FCSalesTool.Api.csproj" />
+    <Project Path="src/FCSalesTool.AppHost/FCSalesTool.AppHost.csproj" />
+    <Project Path="src/FCSalesTool.Application/FCSalesTool.Application.csproj" />
+    <Project Path="src/FCSalesTool.Domain/FCSalesTool.Domain.csproj" />
+    <Project Path="src/FCSalesTool.Infrastructure/FCSalesTool.Infrastructure.csproj" />
+    <Project Path="src/FCSalesTool.ServiceDefaults/FCSalesTool.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FCSalesTool.Api.Tests/FCSalesTool.Api.Tests.csproj" />
+    <Project Path="tests/FCSalesTool.Application.Tests/FCSalesTool.Application.Tests.csproj" />
+    <Project Path="tests/FCSalesTool.Domain.Tests/FCSalesTool.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
