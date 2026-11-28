@@ -64,15 +64,15 @@ CCP currently charges the same amount regardless of currency (e.g. 14.95 USD = 1
 
 | Entity | Purpose | Key fields |
 |---|---|---|
-| **Product** | Something CCP sells for real money | `Id`, `Name`, `Kind` (OmegaSub, PlexPack, Bundle, SkillPointPack, Other), `IsActive` |
-| **ProductContent** | What a product contains (a bundle has several rows) | `ProductId`, `ContentType` (OmegaDays, Plex, SkillPoints, Mct, Other), `Quantity` |
+| **Product** | Something CCP sells for real money | `Id`, `Name`, `Kind` (OmegaSub, PlexPack, Bundle, SkillPointPack, StarterPack, Other), `IsActive`, `PurchaseLimitPerAccount?` (starter packs are one per account) |
+| **ProductContent** | What a product contains (a bundle has several rows) | `ProductId`, `ContentType` (OmegaDays, Plex, SkillPoints, Mct, SkillExtractor, Accelerator, Cosmetic, Other), `Quantity`; accelerators also store attribute bonus and duration so their SP can be derived (see 3.3) |
 | **ListPrice** | Regular (non-sale) price, valid over a date range | `ProductId`, `Currency`, `Amount`, `ValidFrom`, `ValidTo?` |
-| **Sale** | A special/promotion event | `Id`, `Title`, `StartsAt`, `EndsAt`, `EventTag?`, `SourceUrl?`, `Notes`, `Screenshot?` |
+| **Sale** | A special/promotion event | `Id`, `Title`, `StartsAt`, `EndsAt`, `StartIsApproximate`, `EndIsApproximate`, `EventTag?`, `SourceUrl?`, `Notes`, `Screenshot?` (deferred to phase 5) |
 | **SaleOffer** | One discounted product within a sale | `SaleId`, `ProductId`, `Currency`, `SaleAmount`, `BonusContent?` (e.g. +10% PLEX) |
 | **EventTag** | Recurring event category used for prediction | `Name` (BlackFriday, Christmas, Anniversary, Summer, Fanfest, Other), `TypicalMonth?` |
 | **NesItem** | An item on the New Eden Store priced in PLEX | `Id`, `Name`, `Kind` (OmegaViaPlex, SkillInjector, Mct, …), `ContentType`, `Quantity` |
 | **NesPrice** | PLEX price of a NES item over time (incl. NES sales) | `NesItemId`, `PlexCost`, `ValidFrom`, `ValidTo?`, `IsSale` |
-| **MarketPrice** | ISK price snapshot from ESI (PLEX, injectors) | `TypeId`, `Date`, `BuyPrice`, `SellPrice`, `Volume` |
+| **MarketPrice** | ISK price snapshot (PLEX, extractors, injectors, Hypercore) | `TypeId`, `Date`, `BuyPrice`, `SellPrice`, `Volume?`, `Source` (Esi, Manual — backfilled values are Manual) |
 | **User** (`AppUser`) | Local account (Identity) | `Id`, `DisplayName`, `Email?`, `EmailConfirmed`, `PasswordHash?`, `AvatarCharacterId?`, `CreatedAt` |
 | **LinkedCharacter** | EVE character that signs in to an account | `CharacterId` (PK), `UserId`, `Name`, `OwnerHash?`, `LinkedAt`, `LastSignInAt?` |
 | **UserSettings** | Per-user planner inputs | `Currency`, `AccountCount`, `PlanHorizonMonths`, `MaxOneTimeSpend?`, `PlexOnHand`, alert preferences |
@@ -101,7 +101,9 @@ Everything is reduced to comparable **unit costs**, computed per currency at a g
 
 - **Cost per Omega-day** (direct subs and bundles)
 - **Cost per PLEX** (PLEX packs and bundles)
-- **Cost per 100k SP** (SP packs, NES injectors via PLEX, market injectors via ISK → PLEX)
+- **Cost per 100k SP** (SP packs, accelerators, NES injectors via PLEX, market injectors via ISK → PLEX)
+
+Accelerator SP = attribute bonus × duration, which depends on the character's Biology skill; we assume Biology 5 by default (configurable), as the backfill sheet does.
 
 For bundles, the cost is split across their contents using the current list-price unit costs as weights, so a bundle's "effective Omega cost" and "effective PLEX cost" can be shown.
 
@@ -136,7 +138,13 @@ For each product kind, take the gaps between consecutive sales:
 
 ### 4.4 Bootstrapping
 
-Predictions are only as good as the history. **Backfill past sales** (from notes, screenshots, dev blogs, news archives) during phase 1.
+Predictions are only as good as the history. **Backfill past sales** during phase 1.
+
+**Source:** a public [Google Sheet](https://docs.google.com/spreadsheets/d/1K2CEaO4P3hhAZFMcLy8_E4wtm_QHG8tQlsylVHvANgA) with ~42 store snapshots from Feb 2023 to Nov 2026 — one tab per snapshot with USD store prices, NES PLEX prices, "sale" flags, free-text notes (sale end dates), and ISK market prices for PLEX, extractors, large injectors and Hypercore.
+
+**Approach** (tracked in #13): tab layouts drift, so a one-off extraction script (`tools/backfill/`) produces draft JSON per tab; humans curate it into `data/backfill/*.json`; the admin bulk import loads it. Dates found in notes are exact; dates inferred only from snapshot dates are flagged approximate, so prediction can weigh them accordingly.
+
+**Permission:** the sheet is third-party work. Permission and attribution must be agreed before backfilled data is shown publicly (#31).
 
 ---
 
@@ -318,54 +326,60 @@ SkillpointPlannerPage        (owns: SpInput, SourceComparison, history stats)
 
 ## 10. Roadmap
 
-### Phase 1 — Foundation and data (MVP)
+Each phase is a GitHub milestone; each feature is a parent issue with one sub-issue per PR (see CONTRIBUTING.md §2). Issue dependencies are set as "blocked by" links.
 
-- .NET solution skeleton (Web API + class libraries), Vite React-TS app in `web/` with Tailwind v4, TanStack Router and Query wired up
-- Dev setup: Vite proxy to the API; production build copies the SPA into the API's `wwwroot`
-- OpenAPI → TypeScript client generation script
-- `AGENTS.md`, CI (dotnet build/test + pnpm lint/typecheck/test/build)
-- Domain model, EF Core, migrations, seed product catalogue
-- EVE SSO login, Admin role
-- Admin pages: products, list prices, sales + offers, NES prices
-- Public pages: sales history, current active sales
-- Backfill historical sales
+### Phase 1 — Foundation and data (`v0.1`)
 
-### Phase 2 — Subscription Planner
+- Done: solution skeleton, Aspire AppHost, home page, local accounts with EVE SSO and email (#1–#8)
+- Foundation (#9): CI, generated TypeScript API client, SPA served from `wwwroot`
+- Domain model (#10): `Money`, product catalogue, sales and event tags, NES, market prices
+- Admin data entry (#11): Admin role, products, list prices, sales + offers, NES prices
+- Public sales pages (#12): current active sales, sales history
+- Seed and backfill (#13): bulk JSON import, extraction script, curated catalogue and 2023–2026 history, ISK market history, data permission
 
-- Unit-cost service
-- Optimiser + tests on known scenarios
-- User settings page
-- Planner dashboard with per-account shopping list
+### Phase 2 — Subscription Planner (`v0.2`, #38)
 
-### Phase 3 — Prediction
+- Decisions: PLEX transfer cost and solver (#39), third-party retailer discount (#40)
+- Unit-cost service, optimiser (min-cost and budget modes), per-account expiry dates
+- Planner API, user settings page, planner dashboard with per-account shopping list
 
-- Event-tag recurrence + interval statistics
+### Phase 3 — Prediction (`v0.3`, #49)
+
+- Event-tag recurrence + interval statistics (aware of approximate dates)
 - Upcoming sales calendar
 - "Buy now or wait?" in the Subscription Planner
 
-### Phase 4 — Skillpoint Planner
+### Phase 4 — Skillpoint Planner (`v0.4`, #50)
 
 - ESI market price polling (PLEX, injectors)
 - Injector tier config
 - SP dashboard with cost-per-SP comparison and "good time to buy"
 
-### Phase 5 — Polish
+### Phase 5 — Polish (`v0.5`, #51)
 
 - Price alerts (email/Discord)
 - Price history charts
+- Sale screenshots
 - Public API / export (optional)
+
+### Launch (`v1.0`, #52)
+
+- Hosting, deploy pipeline, production config, legal and attribution pages, monitoring
+
+Phases 3–5 and launch are single parent issues for now; they are broken down when the previous phase is underway.
 
 ---
 
 ## 11. Open questions
 
-1. **PLEX transfer cost** — treat moving PLEX between accounts as free, or include fees?
-2. **Bridging subs** — should "wait" recommendations include a short sub to avoid lapses?
-3. **Hosting** — Azure, VPS, other? Affects database and job setup.
-4. **Historical data** — what past sales records exist for backfill?
-5. **Catalogue check** — confirm the current Omega durations, PLEX pack sizes, bundles, SP packs, NES "Omega via PLEX" price, and injector tiers before seeding.
-6. **.NET test framework** — xUnit v3 (default) or MSTest?
-7. **Frontend extras** — component primitives (shadcn/ui on Tailwind v4, or hand-rolled), forms (TanStack Form fits the stack; React Hook Form is the alternative), charts (Recharts or similar), package manager (pnpm default).
+1. **PLEX transfer cost** — treat moving PLEX between accounts as free, or include fees? → #39
+2. **Bridging subs** — should "wait" recommendations include a short sub to avoid lapses? → #49
+3. **Hosting** — Azure, VPS, other? Affects database, job setup and file storage. → #52
+4. ~~**Historical data**~~ — resolved: backfill from the snapshot sheet (§4.4); permission pending (#31).
+5. **Catalogue check** — seed from the Nov 2026 snapshot and spot-check against the live store (#33); injector tiers in phase 4.
+6. ~~**.NET test framework**~~ — resolved: xUnit v3 on Microsoft.Testing.Platform.
+7. **Frontend extras** — component primitives (shadcn/ui on Tailwind v4, or hand-rolled), forms (TanStack Form fits the stack; React Hook Form is the alternative), charts (Recharts or similar). Package manager: pnpm.
+8. **Third-party retailer discount** — model the ~3% creator-code discount as a purchase channel? → #40
 
 ## 12. Assumptions
 
